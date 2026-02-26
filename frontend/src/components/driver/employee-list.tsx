@@ -9,11 +9,12 @@ import api from "@/lib/api";
 interface EmployeeListProps {
     stopId: string;
     tripId: string;
+    tripType: string;
     employees: any[];
     onUpdate: () => void;
 }
 
-export default function EmployeeList({ stopId, tripId, employees, onUpdate }: EmployeeListProps) {
+export default function EmployeeList({ stopId, tripId, tripType, employees, onUpdate }: EmployeeListProps) {
     const [loading, setLoading] = useState<string | null>(null);
     const { toast } = useToast();
 
@@ -47,7 +48,12 @@ export default function EmployeeList({ stopId, tripId, employees, onUpdate }: Em
                             </div>
                             <div>
                                 <p className="font-medium text-sm">{log.employee.name}</p>
-                                <p className="text-xs text-gray-500">{log.employee.department || 'Employee'}</p>
+                                {log.employee.phone && (
+                                    <a href={`tel:${log.employee.phone}`} className="text-xs text-blue-600 font-medium hover:underline block mt-0.5">
+                                        📞 {log.employee.phone}
+                                    </a>
+                                )}
+                                <p className="text-xs text-gray-500 mt-0.5">{log.employee.department || 'Employee'}</p>
                             </div>
                         </div>
 
@@ -68,17 +74,32 @@ export default function EmployeeList({ stopId, tripId, employees, onUpdate }: Em
                                         className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                                         disabled={loading === log.employee_id}
                                         onClick={() => handleStatusUpdate(log.employee_id, 'missed')}
+                                        title="Missed"
                                     >
                                         <X className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                        size="icon"
-                                        className="h-8 w-8 bg-green-600 hover:bg-green-700"
-                                        disabled={loading === log.employee_id}
-                                        onClick={() => handleStatusUpdate(log.employee_id, 'boarded')} // Logic needs to check trip type for 'dropped' vs 'boarded'
-                                    >
-                                        <Check className="w-4 h-4" />
-                                    </Button>
+                                    {(tripType === 'pickup' || tripType === 'both' || tripType === 'return') && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-8 text-green-700 border-green-200 hover:bg-green-50"
+                                            disabled={loading === log.employee_id}
+                                            onClick={() => handleStatusUpdate(log.employee_id, 'boarded')}
+                                        >
+                                            Pick
+                                        </Button>
+                                    )}
+                                    {(tripType === 'drop' || tripType === 'both' || tripType === 'return') && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-8 text-blue-700 border-blue-200 hover:bg-blue-50"
+                                            disabled={loading === log.employee_id}
+                                            onClick={() => handleStatusUpdate(log.employee_id, 'dropped')}
+                                        >
+                                            Drop
+                                        </Button>
+                                    )}
                                 </>
                             )}
                         </div>

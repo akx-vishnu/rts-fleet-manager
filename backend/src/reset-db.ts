@@ -29,7 +29,7 @@ async function bootstrap() {
             await db.execute(sql.raw(`TRUNCATE TABLE "${table}" CASCADE`));
             console.log(`✅ Truncated table: ${table}`);
         } catch (error) {
-            console.log(`ℹ️  Table ${table} skip/error:`, error.message);
+            console.log(`ℹ️  Table ${table} skip/error:`, error instanceof Error ? error.message : String(error));
         }
     }
 

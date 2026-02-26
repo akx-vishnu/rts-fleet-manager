@@ -19,7 +19,9 @@ export enum TripType {
 }
 
 export enum BoardingStatus {
+    PENDING = 'pending',
     BOARDED = 'boarded',
+    DROPPED = 'dropped',
     MISSED = 'missed',
     NO_SHOW = 'no_show',
     SKIPPED = 'skipped',
@@ -27,7 +29,7 @@ export enum BoardingStatus {
 
 export const tripStatusEnum = pgEnum('trip_status', [TripStatus.SCHEDULED, TripStatus.ONGOING, TripStatus.COMPLETED, TripStatus.CANCELLED]);
 export const tripTypeEnum = pgEnum('trip_type', [TripType.PICKUP, TripType.DROP, TripType.RETURN, TripType.BOTH]);
-export const boardingStatusEnum = pgEnum('boarding_status', [BoardingStatus.BOARDED, BoardingStatus.MISSED, BoardingStatus.NO_SHOW, BoardingStatus.SKIPPED]);
+export const boardingStatusEnum = pgEnum('boarding_status', [BoardingStatus.PENDING, BoardingStatus.BOARDED, BoardingStatus.DROPPED, BoardingStatus.MISSED, BoardingStatus.NO_SHOW, BoardingStatus.SKIPPED]);
 
 export const trips = pgTable('trips', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -54,7 +56,7 @@ export const tripBoardingLogs = pgTable('trip_boarding_logs', {
     trip_id: uuid('trip_id').references(() => trips.id).notNull(),
     employee_id: uuid('employee_id').references(() => users.id).notNull(),
     stop_id: uuid('stop_id').references(() => stops.id).notNull(),
-    status: boardingStatusEnum('status').default(BoardingStatus.BOARDED).notNull(),
+    status: boardingStatusEnum('status').default(BoardingStatus.PENDING).notNull(),
     boarded_at: timestamp('boarded_at').notNull(),
     created_at: timestamp('created_at').defaultNow().notNull(),
 });

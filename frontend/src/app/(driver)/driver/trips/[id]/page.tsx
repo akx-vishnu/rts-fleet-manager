@@ -228,6 +228,7 @@ export default function ActiveTripPage({ params }: { params: Promise<{ id: strin
                                             <EmployeeList
                                                 stopId={currentStopData?.stop_id}
                                                 tripId={trip.id}
+                                                tripType={trip.type}
                                                 employees={employeesAtStop}
                                                 onUpdate={fetchTrip}
                                             />

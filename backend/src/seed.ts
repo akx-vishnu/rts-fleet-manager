@@ -77,9 +77,9 @@ async function bootstrap() {
 
         if (!existingDriver && driverUser) {
             await fleetService.createDriver({
-                user: driverUser, // Passing full user object if needed, or ID depending on logic
+                userId: driverUser.id,
                 license_number: 'DL-1234567890',
-                // Vehicle assignment is now managed through trips
+                status: 'active',
             });
             console.log('✅ Created Driver Profile for:', driverEmail);
         } else {

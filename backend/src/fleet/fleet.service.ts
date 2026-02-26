@@ -121,12 +121,27 @@ export class FleetService {
     }
 
     async findDriverByUserId(userId: string) {
-        return this.db.query.drivers.findFirst({
+        const driver = await this.db.query.drivers.findFirst({
             where: eq(drivers.user_id, userId),
             with: {
                 user: true,
             },
         });
+
+        if (!driver) return null;
+
+        // Calculate completed trips
+        const completedTripsResult = await this.db.query.trips.findMany({
+            where: and(
+                eq(schema.trips.driver_id, driver.id),
+                eq(schema.trips.status, TripStatus.COMPLETED)
+            )
+        });
+
+        return {
+            ...driver,
+            tripsCompleted: completedTripsResult.length
+        };
     }
 
     async removeDriver(id: string) {

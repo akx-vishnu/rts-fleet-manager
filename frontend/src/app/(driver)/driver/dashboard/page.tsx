@@ -219,7 +219,7 @@ export default function DriverDashboard() {
                 <Card className="shadow-sm">
                     <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                         <span className="text-2xl font-bold text-gray-900">
-                            {todayTrips.filter(t => t.status === 'completed').length}
+                            {driver.tripsCompleted || 0}
                         </span>
                         <span className="text-xs text-gray-500 mt-1">Completed</span>
                     </CardContent>
