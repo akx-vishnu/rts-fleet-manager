@@ -178,7 +178,7 @@ export default function TrackingPage() {
                                                                 {stats.boarded.length}/{stats.total}
                                                             </span>
                                                         </div>
-                                                        
+
                                                         {/* Categorized Employee Lists */}
                                                         <div className="space-y-2">
                                                             {/* Boarded */}
@@ -190,10 +190,9 @@ export default function TrackingPage() {
                                                                     </div>
                                                                     <div className="pl-4 text-xs text-muted-foreground flex flex-wrap gap-x-2">
                                                                         {stats.boarded.map((log: any) => (
-                                                                            <span key={log.id}>{log.employee?.name}</span>
+                                                                            <span key={log.id}>{log.employee?.name || 'Unknown'}</span>
                                                                         ))}
-                                                                    </div>
-                                                                </div>
+                                                                    </div>                                                                </div>
                                                             )}
 
                                                             {/* Missed */}

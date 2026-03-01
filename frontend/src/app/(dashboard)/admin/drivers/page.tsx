@@ -112,7 +112,9 @@ export default function DriversPage() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    className="text-green-600 hover:text-green-700 hover:bg-green-50 disabled:opacity-50"
+                                                    disabled={!driver.user?.phone}
+                                                    aria-label={`Call ${driver.user?.name || 'driver'}`}
                                                     onClick={() => {
                                                         const phone = driver.user?.phone;
                                                         if (phone && confirm(`Call ${driver.user?.name || 'driver'} at ${phone}?`)) {
@@ -121,8 +123,7 @@ export default function DriversPage() {
                                                     }}
                                                 >
                                                     <Phone className="h-4 w-4" />
-                                                </Button>
-                                                <Button
+                                                </Button>                                                <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setEditingDriver(driver)}

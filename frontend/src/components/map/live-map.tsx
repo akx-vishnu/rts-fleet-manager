@@ -67,14 +67,17 @@ function VehicleMarker({ v, isSelected }: { v: VehicleLocation, isSelected: bool
     const markerRef = useRef<any>(null);
 
     useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
         if (isSelected && markerRef.current) {
             // Small delay to ensure the map flyTo animation starts/finishes
-            setTimeout(() => {
+            timeoutId = setTimeout(() => {
                 markerRef.current?.openPopup();
             }, 500);
         }
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [isSelected, v.lat, v.lng]);
-
     return (
         <Marker
             ref={markerRef}
@@ -102,11 +105,10 @@ function VehicleMarker({ v, isSelected }: { v: VehicleLocation, isSelected: bool
 function FlyToVehicle({ lat, lng }: { lat: number; lng: number }) {
     const map = useMap();
     useEffect(() => {
-        if (lat && lng) {
+        if (lat != null && lng != null) {
             map.flyTo([lat, lng], 15, { duration: 1.5 });
         }
-    }, [lat, lng, map]);
-    return null;
+    }, [lat, lng, map]); return null;
 }
 
 interface LiveMapProps {

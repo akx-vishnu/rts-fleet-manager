@@ -27,7 +27,9 @@ interface User {
 interface Employee {
     id: string;
     employee_id: string;
-    user: User;
+    user?: User;
+    name: string;
+    phone: string;
     department: string;
     designation: string;
 }
@@ -73,12 +75,12 @@ export default function EmployeesPage() {
                 bValue = b.employee_id || '';
                 break;
             case 'name':
-                aValue = a.user?.name || '';
-                bValue = b.user?.name || '';
+                aValue = a.name || '';
+                bValue = b.name || '';
                 break;
             case 'phone':
-                aValue = a.user?.phone || '';
-                bValue = b.user?.phone || '';
+                aValue = a.phone || '';
+                bValue = b.phone || '';
                 break;
 
             case 'designation':
@@ -145,9 +147,9 @@ export default function EmployeesPage() {
                                             {employee.employee_id}
                                         </TableCell>
                                         <TableCell className="font-medium">
-                                            {employee.user?.name || 'N/A'}
+                                            {employee.name || 'N/A'}
                                         </TableCell>
-                                        <TableCell>{employee.user?.phone}</TableCell>
+                                        <TableCell>{employee.phone || 'N/A'}</TableCell>
 
                                         <TableCell>
                                             <Badge variant="outline">{employee.designation}</Badge>
@@ -158,16 +160,16 @@ export default function EmployeesPage() {
                                                     variant="ghost"
                                                     size="sm"
                                                     className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    disabled={!employee.phone}
                                                     onClick={() => {
-                                                        const phone = employee.user?.phone;
-                                                        if (phone && confirm(`Call ${employee.user?.name || 'employee'} at ${phone}?`)) {
+                                                        const phone = employee.phone;
+                                                        if (phone && confirm(`Call ${employee.name || 'employee'} at ${phone}?`)) {
                                                             window.location.href = `tel:${phone}`;
                                                         }
                                                     }}
                                                 >
                                                     <Phone className="h-4 w-4" />
-                                                </Button>
-                                                <Button
+                                                </Button>                                                <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setEditingEmployee(employee)}

@@ -269,6 +269,41 @@ async function bootstrap() {
       dept: 'Finance',
       designation: 'Sr. Accountant',
     },
+    {
+      name: 'David Miller',
+      phone: '9200000006',
+      empId: 'EMP006',
+      dept: 'Engineering',
+      designation: 'DevOps Engineer',
+    },
+    {
+      name: 'Emma Davis',
+      phone: '9200000007',
+      empId: 'EMP007',
+      dept: 'Operations',
+      designation: 'Fleet Coordinator',
+    },
+    {
+      name: 'Frank Moore',
+      phone: '9200000008',
+      empId: 'EMP008',
+      dept: 'Sales',
+      designation: 'Account Manager',
+    },
+    {
+      name: 'Grace Taylor',
+      phone: '9200000009',
+      empId: 'EMP009',
+      dept: 'Support',
+      designation: 'Customer Service',
+    },
+    {
+      name: 'Henry Anderson',
+      phone: '9200000010',
+      empId: 'EMP010',
+      dept: 'IT',
+      designation: 'Network Admin',
+    },
   ];
 
   const createdEmployees = [];
@@ -563,8 +598,8 @@ async function bootstrap() {
       route_id: createdRoutes[0].id,
       shift_type: schema.ShiftType.MORNING,
       notes:
-        'High priority morning pickup for Engineering block. Ensure all 5 employees are picked up by 08:30 AM.',
-      empIndices: [0, 1, 2, 3, 4],
+        'High priority morning pickup for Engineering block. Ensure all employees are picked up by 08:30 AM.',
+      empIndices: [0, 5, 2, 6, 4],
     },
     {
       driver_id: (createdDrivers[1] as any).id,
@@ -572,8 +607,8 @@ async function bootstrap() {
       route_id: createdRoutes[1].id,
       shift_type: schema.ShiftType.AFTERNOON,
       notes:
-        'Afternoon rotation for South Gate industrial block. 2 new joiners included in the list.',
-      empIndices: [0, 2],
+        'Afternoon rotation for South Gate industrial block. New joiners included in the list.',
+      empIndices: [7, 8],
     },
     {
       driver_id: (createdDrivers[2] as any).id,
@@ -581,8 +616,8 @@ async function bootstrap() {
       route_id: createdRoutes[2].id,
       shift_type: schema.ShiftType.NIGHT,
       notes:
-        'Night drop for Eco-Park HQ. Please wait at the main entrance for all employees to board before departing.',
-      empIndices: [1, 3, 4],
+        'Night drop for Eco-Park HQ. Please wait at the main entrance for all employees to board.',
+      empIndices: [1, 9, 3],
     },
     {
       driver_id: (createdDrivers[3] as any).id,
@@ -590,8 +625,8 @@ async function bootstrap() {
       route_id: createdRoutes[3].id,
       shift_type: schema.ShiftType.MORNING,
       notes:
-        'Corporate Corridor East route. Route includes several construction zones, expects 5-10 mins delay.',
-      empIndices: [0, 4],
+        'Corporate Corridor East route. Route includes several construction zones, expects minor delay.',
+      empIndices: [4, 5, 0],
     },
     {
       driver_id: (createdDrivers[4] as any).id,
@@ -600,7 +635,7 @@ async function bootstrap() {
       shift_type: schema.ShiftType.AFTERNOON,
       notes:
         'Hospital Heartlands emergency standby route. Keep communication channel open for real-time updates.',
-      empIndices: [2],
+      empIndices: [6, 2, 8],
     },
   ];
 

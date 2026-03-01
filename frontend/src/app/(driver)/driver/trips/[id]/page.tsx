@@ -272,23 +272,25 @@ export default function ActiveTripPage({ params }: { params: Promise<{ id: strin
                         )}
                     </div>
 
-                    {/* Navigation controls for stops (Prev/Next) just for dev/manual override */}
                     <div className="flex justify-center gap-4 text-sm text-gray-400 pt-2">
                         <button
+                            type="button"
                             disabled={currentStopIndex === 0}
                             onClick={() => setCurrentStopIndex(prev => Math.max(0, prev - 1))}
+                            className={currentStopIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-600'}
                         >
                             Previous
                         </button>
                         <span>•</span>
                         <button
+                            type="button"
                             disabled={currentStopIndex === stops.length - 1}
                             onClick={() => setCurrentStopIndex(prev => Math.min(stops.length - 1, prev + 1))}
+                            className={currentStopIndex === stops.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-600'}
                         >
                             Next
                         </button>
-                    </div>
-                </div>
+                    </div>                </div>
             </div>
         </div>
     );

@@ -11,9 +11,15 @@ RTS Fleet Manager is designed to streamline logistics and transport operations. 
 - **Backend:** [NestJS](https://nestjs.com/) (Node.js framework)
 - **Frontend:** [Next.js](https://nextjs.org/) (React framework)
 - **Database:** PostgreSQL with [Drizzle ORM](https://orm.drizzle.team/)
-- **Real-time:** [Socket.IO](https://socket.io/) for live tracking
-- **Maps:** [Leaflet](https://leafletjs.com/) for geographic visualization
-- **Caching:** [Redis](https://redis.io/)
+- **Real-time:** [Socket.IO](https://socket.io/) for live tracking and boarding updates
+- **Maps:** [Leaflet](https://leafletjs.com/) for tracking visualization
+
+## ✨ Recent Enhancements
+
+- **Live Boarding Tracking**: Real-time visibility into employee boarding status (Picked, Missed, Pending) on the Admin Dashboard.
+- **Account-less Employees**: Streamlined employee management where employees no longer require user accounts for registration.
+- **Intelligent Auth Redirects**: Automatically directs logged-in users from the landing pages to their respective dashboards.
+- **Fleet Dashboard**: Comprehensive overview of fleet stats, active trips, and driver availability.
 
 ## 📂 Project Structure
 

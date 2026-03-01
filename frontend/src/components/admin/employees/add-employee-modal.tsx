@@ -42,19 +42,9 @@ export function AddEmployeeModal({ onEmployeeAdded }: AddEmployeeModalProps) {
         setLoading(true);
 
         try {
-            // 1. Create User
-            const userRes = await api.post('/users', {
-                email: formData.email || undefined,
+            await api.post('/employees', {
                 name: formData.name,
                 phone: formData.phone,
-                role: 'employee',
-            });
-
-            const userId = userRes.data.id;
-
-            // 2. Create Employee Profile
-            await api.post('/employees', {
-                userId: userId,
                 employee_id: formData.employee_id,
                 department: formData.department,
                 designation: formData.designation,

@@ -59,7 +59,8 @@ interface Assignment {
         employee: {
             id: string;
             employee_id: string;
-            user: { name: string; };
+            name: string;
+            user?: { name: string; };
         };
     }[];
 }
@@ -293,7 +294,7 @@ export default function RosterAssignmentsPage() {
                                             <div className="flex flex-wrap gap-1">
                                                 {assignment.employees?.map((empRel, idx) => (
                                                     <Badge key={idx} variant="outline" className="text-xs">
-                                                        {empRel.employee.user.name} ({empRel.employee.employee_id})
+                                                        {empRel.employee.name} ({empRel.employee.employee_id})
                                                     </Badge>
                                                 ))}
                                                 {(!assignment.employees || assignment.employees.length === 0) && '-'}
@@ -416,7 +417,7 @@ export default function RosterAssignmentsPage() {
                                             className="h-4 w-4 rounded border-gray-300"
                                         />
                                         <Label htmlFor={`emp-${emp.id}`} className="text-sm font-normal cursor-pointer">
-                                            {emp.user.name} ({emp.employee_id})
+                                            {emp.name} ({emp.employee_id})
                                         </Label>
                                     </div>
                                 ))}

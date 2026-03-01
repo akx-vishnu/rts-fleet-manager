@@ -35,9 +35,9 @@ export function EditEmployeeModal({ employee, onClose, onEmployeeUpdated }: Edit
     useEffect(() => {
         if (employee) {
             setFormData({
-                name: employee.user?.name || '',
+                name: employee.name || '',
                 email: employee.user?.email || '',
-                phone: employee.user?.phone || '',
+                phone: employee.phone || '',
                 employee_id: employee.employee_id || '',
                 department: employee.department || '',
                 designation: employee.designation || '',
