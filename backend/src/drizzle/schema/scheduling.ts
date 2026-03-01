@@ -76,7 +76,7 @@ export const rosterAssignments = pgTable('roster_assignments', {
     .notNull(),
   date: date('date').notNull(),
   shift_type: shiftTypeEnum('shift_type').notNull(),
-  trip_type: tripTypeEnum('trip_type').default(TripType.PICKUP),
+  trip_type: tripTypeEnum('trip_type').notNull(),
   scheduled_time: time('scheduled_time'),
   status: assignmentStatusEnum('status')
     .default(AssignmentStatus.ASSIGNED)

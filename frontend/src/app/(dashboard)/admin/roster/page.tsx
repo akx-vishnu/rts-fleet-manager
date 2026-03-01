@@ -82,7 +82,7 @@ export default function RosterAssignmentsPage() {
         vehicleId: '',
         routeId: '',
         shiftType: 'morning',
-        tripType: 'pickup',
+        tripType: '',
         scheduledTime: '',
         employeeIds: [] as string[],
         notes: '',
@@ -100,7 +100,7 @@ export default function RosterAssignmentsPage() {
                 vehicleId: '',
                 routeId: '',
                 shiftType: 'morning',
-                tripType: 'pickup',
+                tripType: '',
                 scheduledTime: '',
                 employeeIds: [],
                 notes: '',
@@ -167,7 +167,7 @@ export default function RosterAssignmentsPage() {
                 vehicleId: '',
                 routeId: '',
                 shiftType: 'morning',
-                tripType: 'pickup',
+                tripType: '',
                 scheduledTime: '',
                 employeeIds: [],
                 notes: '',
@@ -259,17 +259,16 @@ export default function RosterAssignmentsPage() {
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="h-24 text-center">
+                                    <TableCell colSpan={8} className="h-24 text-center">
                                         Loading...
                                     </TableCell>
                                 </TableRow>
                             ) : assignments.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                                         No assignments found for {format(selectedDate, 'MMM d, yyyy')}
                                     </TableCell>
-                                </TableRow>
-                            ) : (
+                                </TableRow>) : (
                                 assignments.map((assignment) => (
                                     <TableRow key={assignment.id}>
                                         <TableCell>{assignment.date}</TableCell>
@@ -379,7 +378,7 @@ export default function RosterAssignmentsPage() {
                                     onValueChange={(value) => setNewAssignment({ ...newAssignment, tripType: value })}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue />
+                                        <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="pickup">Pickup</SelectItem>
@@ -460,8 +459,7 @@ export default function RosterAssignmentsPage() {
                                                             <span className="font-semibold">#{idx + 1} {sug.driver.user.name}</span>
                                                             <p className="text-xs text-muted-foreground">{sug.reasoning}</p>
                                                         </div>
-                                                        <Badge variant="outline">Score: {sug.fairnessScore.toFixed(1)}</Badge>
-                                                    </div>
+                                                        <Badge variant="outline">Score: {sug.fairnessScore?.toFixed(1) ?? 'N/A'}</Badge>                                                    </div>
                                                 ))}
                                             </div>
                                         )}
