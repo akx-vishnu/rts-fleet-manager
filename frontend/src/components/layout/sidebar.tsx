@@ -77,7 +77,7 @@ export function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
     };
 
     return (
-        <div className="flex h-full min-h-screen w-64 flex-col bg-gray-900 text-white border-r border-gray-800">
+        <div className="flex h-full w-64 flex-col bg-gray-900 text-white border-r border-gray-800">
             {/* Brand Header */}
             <div className="flex h-16 items-center border-b border-gray-800 px-4 shrink-0 gap-3">
                 <img src="/logo.png" alt="RTS Logo" className="h-9 w-9 rounded-lg object-contain" />
