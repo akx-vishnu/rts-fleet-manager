@@ -4,6 +4,7 @@ import { DRIZZLE } from '../drizzle/drizzle.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../drizzle/schema';
 import { rosters, trips } from '../drizzle/schema';
+import { EventsGateway } from '../events/events.gateway';
 import { eq, and, notExists } from 'drizzle-orm';
 import { FleetService } from '../fleet/fleet.service';
 
@@ -14,7 +15,8 @@ export class TripGeneratorService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
     private fleetService: FleetService,
-  ) {}
+    private eventsGateway: EventsGateway,
+  ) { }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async generateDailyTrips(targetDate?: Date) {
@@ -123,6 +125,20 @@ export class TripGeneratorService {
         }
 
         createdTrips.push(newTrip);
+
+        // Notify driver
+        const driver = await this.db.query.drivers.findFirst({
+          where: eq(schema.drivers.id, assignment.driver_id),
+          with: { user: true },
+        });
+
+        if (driver?.user_id) {
+          this.eventsGateway.sendNotification(`user_${driver.user_id}`, {
+            title: 'New Trip Scheduled',
+            body: `A new trip has been scheduled for you on ${dateStr} at ${timeStr}`,
+            data: { tripId: newTrip.id },
+          });
+        }
       }
     }
 

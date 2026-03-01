@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RTS Fleet Manager",
+  title: "RTS Fleet",
   description: "Fleet Management System",
   icons: {
     icon: "/logo.png",
@@ -24,12 +24,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "RTS Driver",
+    title: "RTS Fleet",
   },
   formatDetection: {
     telephone: false,
   },
 };
+
+import { PWAHandler } from "@/components/layout/pwa-handler";
 
 export default function RootLayout({
   children,
@@ -41,6 +43,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <PWAHandler />
         {children}
         <Toaster />
       </body>

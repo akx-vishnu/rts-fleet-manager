@@ -17,15 +17,31 @@ export class EventsGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly redisService: RedisService) {}
+  constructor(private readonly redisService: RedisService) { }
 
   @SubscribeMessage('joinRoom')
   handleJoinRoom(
     @MessageBody() room: string,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(`[EventsGateway] Client ${client.id} joining room: ${room}`);
     client.join(room);
     return { event: 'joined', room };
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(
+    @MessageBody() room: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log(`[EventsGateway] Client ${client.id} leaving room: ${room}`);
+    client.leave(room);
+    return { event: 'left', room };
+  }
+
+  // Helper to send notifications to specific rooms or users
+  sendNotification(room: string, payload: { title: string; body: string; data?: any }) {
+    this.server.to(room).emit('notification', payload);
   }
 
   @SubscribeMessage('locationUpdate')

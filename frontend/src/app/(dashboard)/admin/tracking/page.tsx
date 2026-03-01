@@ -104,15 +104,15 @@ export default function TrackingPage() {
     };
 
     return (
-        <div className="space-y-6 h-[calc(100vh-100px)] flex flex-col">
+        <div className="space-y-6 lg:h-[calc(100vh-100px)] flex flex-col">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight">Live Tracking</h2>
                 <p className="text-muted-foreground">Monitor vehicle locations and employee boarding in real-time.</p>
             </div>
 
-            <div className="flex-1 grid grid-cols-5 gap-6 overflow-hidden">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-6 overflow-hidden md:overflow-visible lg:overflow-hidden">
                 {/* Left Panel - Trip Details */}
-                <div className="col-span-2 overflow-hidden">
+                <div className="lg:col-span-2 h-[400px] lg:h-full overflow-hidden">
                     <Card className="h-full flex flex-col">
                         <CardHeader className="pb-3 flex-shrink-0">
                             <CardTitle className="text-lg">Active Trips</CardTitle>
@@ -237,7 +237,7 @@ export default function TrackingPage() {
                 </div>
 
                 {/* Right Panel - Map */}
-                <div className="col-span-3">
+                <div className="lg:col-span-3 h-[500px] lg:h-full">
                     <Card className="h-full overflow-hidden">
                         <CardHeader className="p-4 border-b">
                             <CardTitle>Fleet Map</CardTitle>

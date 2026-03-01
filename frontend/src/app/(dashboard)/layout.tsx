@@ -24,7 +24,7 @@ export default function DashboardLayout({
 
                 <div className="flex flex-1 flex-col overflow-hidden">
                     {/* Mobile Header */}
-                    <header className="flex h-16 items-center justify-between border-b bg-white px-4 shadow-sm md:hidden">
+                    <header className="flex h-16 items-center justify-between border-b bg-white px-4 shadow-sm md:hidden sticky top-0 z-50">
                         <div className="flex items-center gap-2">
                             <img src="/logo.png" alt="RTS Logo" className="h-8 w-8 rounded-lg object-contain" />
                             <span className="text-lg font-bold">RTS Fleet</span>

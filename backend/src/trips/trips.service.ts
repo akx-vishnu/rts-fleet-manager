@@ -11,6 +11,8 @@ import { FleetService } from '../fleet/fleet.service';
 import { EventsGateway } from '../events/events.gateway';
 import { eq, desc, and } from 'drizzle-orm';
 
+import { Cron, CronExpression } from '@nestjs/schedule';
+
 @Injectable()
 export class TripsService {
   constructor(
@@ -18,7 +20,39 @@ export class TripsService {
     private routesService: RoutesService,
     private fleetService: FleetService,
     private eventsGateway: EventsGateway,
-  ) {}
+  ) { }
+
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async checkUpcomingTrips() {
+    const fifteenMinsFromNow = new Date(Date.now() + 15 * 60 * 1000);
+    const now = new Date();
+
+    // Find scheduled trips starting within the next 15 minutes that haven't been notified
+    // For simplicity in this demo, we just find all in the window. 
+    // In a real app, we'd track 'notified' state.
+    const upcomingTrips = await this.db.query.trips.findMany({
+      where: (trips, { and, eq, lte, gte }) => and(
+        eq(trips.status, schema.TripStatus.SCHEDULED),
+        lte(trips.start_time, fifteenMinsFromNow),
+        gte(trips.start_time, now)
+      ),
+      with: {
+        driver: {
+          with: { user: true }
+        }
+      }
+    });
+
+    for (const trip of upcomingTrips) {
+      if (trip.driver?.user_id && trip.start_time) {
+        this.eventsGateway.sendNotification(`user_${trip.driver.user_id}`, {
+          title: 'Trip Starting Soon',
+          body: `Your scheduled trip #${trip.id.slice(0, 8)} starts at ${trip.start_time.toLocaleTimeString()}`,
+          data: { tripId: trip.id }
+        });
+      }
+    }
+  }
 
   async create(createTripDto: CreateTripDto) {
     // Validation could be stricter
@@ -34,6 +68,20 @@ export class TripsService {
         type: schema.TripType.PICKUP, // Default or from DTO
       })
       .returning();
+
+    // Notify driver about new scheduled trip
+    const driver = await this.db.query.drivers.findFirst({
+      where: eq(schema.drivers.id, createTripDto.driverId),
+      with: { user: true },
+    });
+
+    if (driver?.user_id) {
+      this.eventsGateway.sendNotification(`user_${driver.user_id}`, {
+        title: 'New Trip Assigned',
+        body: `You have a new trip scheduled for ${new Date(createTripDto.start_time).toLocaleString()}`,
+        data: { tripId: trip.id },
+      });
+    }
 
     this.eventsGateway.server.emit('tripsUpdated');
 
@@ -96,7 +144,11 @@ export class TripsService {
             },
           },
         },
-        driver: true,
+        driver: {
+          with: {
+            user: true,
+          },
+        },
         vehicle: true,
       },
     });
@@ -107,10 +159,6 @@ export class TripsService {
   async update(id: string, updateTripDto: UpdateTripDto) {
     // Handle updates
     const updateData: any = { ...updateTripDto, updated_at: new Date() };
-    // Map DTO keys to schema keys if different, but assuming similar standard (camelCase vs snake_case might be an issue if DTO uses camelCase and we pass it directly to update)
-    // Drizzle schema uses snake_case keys for columns.
-    // updateTripDto properties not mapped automatically.
-    // We should map them.
 
     const mappedData: any = { updated_at: new Date() };
     if (updateTripDto.status) mappedData.status = updateTripDto.status;
@@ -119,11 +167,29 @@ export class TripsService {
       mappedData.vehicle_id = updateTripDto.vehicleId;
     // Add other fields as needed
 
+    const oldTrip = await this.findOne(id);
     const [updatedTrip] = await this.db
       .update(trips)
       .set(mappedData)
       .where(eq(trips.id, id))
       .returning();
+
+    // Notify admins when trip starts or ends
+    if (updateTripDto.status && updateTripDto.status !== oldTrip.status) {
+      if (updateTripDto.status === schema.TripStatus.ONGOING) {
+        this.eventsGateway.sendNotification('admins', {
+          title: 'Trip Started',
+          body: `Driver ${oldTrip.driver?.user?.name || 'Unknown'} has started Trip #${id.slice(0, 8)}`,
+          data: { tripId: id },
+        });
+      } else if (updateTripDto.status === schema.TripStatus.COMPLETED) {
+        this.eventsGateway.sendNotification('admins', {
+          title: 'Trip Completed',
+          body: `Driver ${oldTrip.driver?.user?.name || 'Unknown'} has completed Trip #${id.slice(0, 8)}`,
+          data: { tripId: id },
+        });
+      }
+    }
 
     this.eventsGateway.server.emit('tripsUpdated');
 

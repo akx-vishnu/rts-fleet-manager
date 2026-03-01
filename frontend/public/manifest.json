@@ -1,8 +1,8 @@
 {
-  "name": "RTS Driver Portal",
-  "short_name": "RTS Driver",
-  "description": "Driver Portal for RTS Fleet Management System",
-  "start_url": "/driver/dashboard",
+  "name": "RTS Fleet",
+  "short_name": "RTS Fleet",
+  "description": "Portal for RTS Fleet Management System",
+  "start_url": "/login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
