@@ -13,11 +13,13 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   // Add simple connection logger
   app.use((req: any, res: any, next: any) => {

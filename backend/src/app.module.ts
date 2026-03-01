@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DrizzleModule } from './drizzle/drizzle.module';
@@ -16,9 +17,9 @@ import { AuditModule } from './audit/audit.module';
 import { RedisModule } from './redis/redis.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EmployeesModule } from './rosters/employees/employees.module';
-import { ShiftsModule } from './shifts/shifts.module';
 
 import { RosterAssignmentsModule } from './roster-assignments/roster-assignments.module';
+import { AuditLoggingInterceptor } from './audit/audit-logging.interceptor';
 
 @Module({
   imports: [
@@ -34,7 +35,6 @@ import { RosterAssignmentsModule } from './roster-assignments/roster-assignments
     RoutesModule,
     RostersModule,
     TripsModule,
-    ShiftsModule,
 
     RosterAssignmentsModule,
     AnalyticsModule,
@@ -44,6 +44,12 @@ import { RosterAssignmentsModule } from './roster-assignments/roster-assignments
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLoggingInterceptor,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Clock, ChevronRight, Truck } from "lucide-react";
+import { MapPin, Calendar, Clock, ChevronRight, Truck, FileText } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -54,6 +54,12 @@ export default function TripCard({ trip }: TripCardProps) {
                                 <span className="font-medium">{trip.vehicle.registration_number}</span>
                                 <span className="text-gray-400">•</span>
                                 <span className="text-xs text-gray-500">{trip.vehicle.model}</span>
+                            </div>
+                        )}
+                        {trip.notes && (
+                            <div className="flex items-start gap-2 text-sm text-gray-600 mt-2 bg-yellow-50 p-2 rounded-md border border-yellow-100">
+                                <FileText className="w-4 h-4 text-yellow-500 mt-0.5" />
+                                <span className="italic text-xs">{trip.notes}</span>
                             </div>
                         )}
                     </div>

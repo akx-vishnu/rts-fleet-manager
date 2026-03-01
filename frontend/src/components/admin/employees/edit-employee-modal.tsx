@@ -30,8 +30,6 @@ export function EditEmployeeModal({ employee, onClose, onEmployeeUpdated }: Edit
         employee_id: '',
         department: '',
         designation: '',
-        shift_start: '',
-        shift_end: '',
     });
 
     useEffect(() => {
@@ -43,8 +41,6 @@ export function EditEmployeeModal({ employee, onClose, onEmployeeUpdated }: Edit
                 employee_id: employee.employee_id || '',
                 department: employee.department || '',
                 designation: employee.designation || '',
-                shift_start: employee.shift_start || '',
-                shift_end: employee.shift_end || '',
             });
         }
     }, [employee]);
@@ -66,8 +62,6 @@ export function EditEmployeeModal({ employee, onClose, onEmployeeUpdated }: Edit
                 employee_id: formData.employee_id,
                 department: formData.department,
                 designation: formData.designation,
-                shift_start: formData.shift_start,
-                shift_end: formData.shift_end,
             });
 
             onEmployeeUpdated();
@@ -140,16 +134,7 @@ export function EditEmployeeModal({ employee, onClose, onEmployeeUpdated }: Edit
                                 <Input id="designation" name="designation" value={formData.designation} onChange={handleChange} required />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="shift_start">Shift Start</Label>
-                                <Input id="shift_start" name="shift_start" type="time" value={formData.shift_start} onChange={handleChange} />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="shift_end">Shift End</Label>
-                                <Input id="shift_end" name="shift_end" type="time" value={formData.shift_end} onChange={handleChange} />
-                            </div>
-                        </div>
+
                     </div>
                     <DialogFooter className="flex justify-between sm:justify-between">
                         <Button

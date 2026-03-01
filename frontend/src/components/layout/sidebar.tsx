@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Bus, Map as MapIcon, Users, Calendar, Activity, ShieldCheck, LogOut, Briefcase, Car, Clock } from 'lucide-react';
+import { LayoutDashboard, Bus, Map as MapIcon, Users, Calendar, Activity, ShieldCheck, LogOut, Briefcase, Car } from 'lucide-react';
 import { memo } from 'react';
 
 // Grouped navigation items for better UX
@@ -11,7 +11,6 @@ const operationsItems = [
     { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { title: 'Live Tracking', href: '/admin/tracking', icon: Activity },
     { title: 'Trips', href: '/admin/trips', icon: Car },
-    { title: 'Shifts', href: '/admin/shifts', icon: Clock },
     { title: 'Roster', href: '/admin/roster', icon: Calendar },
 ];
 
@@ -80,8 +79,9 @@ export function Sidebar({ onLinkClick }: { onLinkClick?: () => void }) {
     return (
         <div className="flex h-full min-h-screen w-64 flex-col bg-gray-900 text-white border-r border-gray-800">
             {/* Brand Header */}
-            <div className="flex h-16 items-center justify-center border-b border-gray-800 px-4 shrink-0">
-                <div className="text-center">
+            <div className="flex h-16 items-center border-b border-gray-800 px-4 shrink-0 gap-3">
+                <img src="/logo.png" alt="RTS Logo" className="h-9 w-9 rounded-lg object-contain" />
+                <div>
                     <h1 className="text-sm font-bold tracking-wider leading-tight text-white">RUDRA TRAVEL SERVICE</h1>
                     <p className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase">Fleet Manager</p>
                 </div>

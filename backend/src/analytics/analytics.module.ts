@@ -3,10 +3,11 @@ import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
 import { UsersModule } from '../users/users.module';
 import { FleetModule } from '../fleet/fleet.module';
+import { EmployeesModule } from '../rosters/employees/employees.module';
 
 @Module({
-    imports: [UsersModule, FleetModule],
-    controllers: [AnalyticsController],
-    providers: [AnalyticsService],
+  imports: [UsersModule, FleetModule, EmployeesModule],
+  controllers: [AnalyticsController],
+  providers: [AnalyticsService],
 })
-export class AnalyticsModule { }
+export class AnalyticsModule {}

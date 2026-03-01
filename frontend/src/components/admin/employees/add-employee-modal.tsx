@@ -30,8 +30,6 @@ export function AddEmployeeModal({ onEmployeeAdded }: AddEmployeeModalProps) {
         department: '',
         designation: '',
         employee_id: '',
-        shift_start: '',
-        shift_end: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +58,6 @@ export function AddEmployeeModal({ onEmployeeAdded }: AddEmployeeModalProps) {
                 employee_id: formData.employee_id,
                 department: formData.department,
                 designation: formData.designation,
-                shift_start: formData.shift_start,
-                shift_end: formData.shift_end,
             });
 
             setOpen(false);
@@ -72,8 +68,6 @@ export function AddEmployeeModal({ onEmployeeAdded }: AddEmployeeModalProps) {
                 department: '',
                 designation: '',
                 employee_id: '',
-                shift_start: '',
-                shift_end: '',
             });
             onEmployeeAdded();
         } catch (error: any) {
@@ -131,16 +125,7 @@ export function AddEmployeeModal({ onEmployeeAdded }: AddEmployeeModalProps) {
                                 <Input id="designation" name="designation" value={formData.designation} onChange={handleChange} required />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="shift_start">Shift Start</Label>
-                                <Input id="shift_start" name="shift_start" type="time" value={formData.shift_start} onChange={handleChange} />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="shift_end">Shift End</Label>
-                                <Input id="shift_end" name="shift_end" type="time" value={formData.shift_end} onChange={handleChange} />
-                            </div>
-                        </div>
+
                     </div>
                     <DialogFooter>
                         <Button type="submit" disabled={loading}>

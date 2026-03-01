@@ -14,6 +14,7 @@ import { io } from 'socket.io-client';
 export default function DriverDashboard() {
     const [driver, setDriver] = useState<any>(null);
     const [todayTrips, setTodayTrips] = useState<any[]>([]);
+    const [ongoingTrip, setOngoingTrip] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const { toast } = useToast(); // Added initialization
@@ -38,7 +39,11 @@ export default function DriverDashboard() {
 
                 const allTrips = tripsRes.data;
 
-                // Active trips for the "Today's Trips" list
+                // Always surface any ongoing trip regardless of its start date
+                const currentOngoing = allTrips.find((t: any) => t.status === 'ongoing');
+                setOngoingTrip(currentOngoing || null);
+
+                // Today's scheduled/ongoing trips for the list & count
                 const activeTrips = allTrips.filter((t: any) => {
                     const tripDate = new Date(t.start_time);
                     return tripDate >= startOfDay && tripDate <= endOfDay && (t.status === 'scheduled' || t.status === 'ongoing');
@@ -92,7 +97,8 @@ export default function DriverDashboard() {
         return <div className="p-4 text-center text-red-500">Error loading profile</div>;
     }
 
-    const currentTrip = todayTrips.find(t => t.status === 'ongoing') || todayTrips[0];
+    // Ongoing trip always takes priority (even if from a different day)
+    const currentTrip = ongoingTrip || todayTrips.find(t => t.status === 'scheduled') || todayTrips[0];
     const assignedVehicle = lastAssignedVehicle;
 
     return (

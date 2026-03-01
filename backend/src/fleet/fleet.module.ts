@@ -6,9 +6,9 @@ import { DriverController } from './driver.controller';
 import { EventsModule } from '../events/events.module';
 
 @Module({
-    imports: [EventsModule],
-    controllers: [FleetController, DriverController],
-    providers: [FleetService],
-    exports: [FleetService],
+  imports: [EventsModule],
+  controllers: [FleetController, DriverController],
+  providers: [FleetService],
+  exports: [FleetService],
 })
-export class FleetModule { }
+export class FleetModule {}

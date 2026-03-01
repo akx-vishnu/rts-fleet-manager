@@ -39,6 +39,7 @@ export default function DriverLayout({
             <div className="flex h-screen flex-col bg-gray-50">
                 <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-white px-4 shadow-sm">
                     <div className="flex items-center gap-2 font-bold">
+                        <img src="/logo.png" alt="RTS Logo" className="h-8 w-8 rounded-lg object-contain" />
                         <span className="text-blue-600">RTS</span> Driver
                     </div>
                     <div className="flex gap-2">

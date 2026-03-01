@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import api from '@/lib/api';
 import { Bus, User, MapPin, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import io from 'socket.io-client';
@@ -30,6 +30,8 @@ export default function TrackingPage() {
     const [trips, setTrips] = useState<Trip[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+
+    const selectedTrip = trips.find(t => t.id === selectedTripId) || null;
 
     useEffect(() => {
         loadTrips();
@@ -90,13 +92,13 @@ export default function TrackingPage() {
 
     const getBoardingStats = (trip: Trip) => {
         if (!trip.boardingLogs || trip.boardingLogs.length === 0) {
-            return { total: 0, boarded: 0, missed: 0, pending: 0 };
+            return { total: 0, boarded: [], missed: [], pending: [] };
         }
 
         const total = trip.boardingLogs.length;
-        const boarded = trip.boardingLogs.filter((log: any) => log.status === 'boarded').length;
-        const missed = trip.boardingLogs.filter((log: any) => log.status === 'missed' || log.status === 'no_show').length;
-        const pending = total - boarded - missed;
+        const boarded = trip.boardingLogs.filter((log: any) => log.status === 'boarded');
+        const missed = trip.boardingLogs.filter((log: any) => log.status === 'missed' || log.status === 'no_show');
+        const pending = trip.boardingLogs.filter((log: any) => log.status === 'pending');
 
         return { total, boarded, missed, pending };
     };
@@ -110,98 +112,127 @@ export default function TrackingPage() {
 
             <div className="flex-1 grid grid-cols-5 gap-6 overflow-hidden">
                 {/* Left Panel - Trip Details */}
-                <div className="col-span-2">
+                <div className="col-span-2 overflow-hidden">
                     <Card className="h-full flex flex-col">
-                        <CardHeader className="pb-3">
+                        <CardHeader className="pb-3 flex-shrink-0">
                             <CardTitle className="text-lg">Active Trips</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex-1 overflow-hidden p-0">
-                            <ScrollArea className="h-full px-6 pb-6">
-                                {loading ? (
-                                    <div className="text-center py-8 text-muted-foreground">Loading trips...</div>
-                                ) : trips.length === 0 ? (
-                                    <div className="text-center py-8 text-muted-foreground">
-                                        <Bus className="mx-auto h-12 w-12 mb-2 opacity-20" />
-                                        <p>No active trips</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {trips.map((trip) => {
-                                            const stats = getBoardingStats(trip);
-                                            return (
-                                                <Card
-                                                    key={trip.id}
-                                                    className={`cursor-pointer transition-all ${selectedTripId === trip.id ? 'ring-2 ring-primary' : ''
-                                                        }`}
-                                                    onClick={() => setSelectedTripId(trip.id)}
-                                                >
-                                                    <CardContent className="p-4 space-y-3">
-                                                        {/* Trip Header */}
-                                                        <div className="flex items-start justify-between">
-                                                            <div className="flex items-center gap-2">
-                                                                <Bus className="h-5 w-5 text-blue-600" />
-                                                                <div>
-                                                                    <p className="font-semibold">Trip #{trip.id.slice(0, 8)}</p>
-                                                                    <p className="text-sm text-muted-foreground capitalize">{trip.type} Trip</p>
-                                                                </div>
-                                                            </div>
-                                                            <Badge className={getStatusColor(trip.status)}>
-                                                                {trip.status}
-                                                            </Badge>
-                                                        </div>
+                        <CardContent className="flex-1 overflow-y-auto p-0 px-6 pb-6">
 
-                                                        {/* Route Info */}
-                                                        <div className="flex items-center gap-2 text-sm">
-                                                            <MapPin className="h-4 w-4 text-gray-500" />
-                                                            <span className="font-medium">{trip.route?.name || 'Unknown Route'}</span>
-                                                        </div>
-
-                                                        {/* Vehicle & Driver */}
-                                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                            {loading ? (
+                                <div className="text-center py-8 text-muted-foreground">Loading trips...</div>
+                            ) : trips.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <Bus className="mx-auto h-12 w-12 mb-2 opacity-20" />
+                                    <p>No active trips</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {trips.map((trip) => {
+                                        const stats = getBoardingStats(trip);
+                                        return (
+                                            <Card
+                                                key={trip.id}
+                                                className={`cursor-pointer transition-all ${selectedTripId === trip.id ? 'ring-2 ring-primary' : ''
+                                                    }`}
+                                                onClick={() => setSelectedTripId(trip.id)}
+                                            >
+                                                <CardContent className="p-4 space-y-3">
+                                                    {/* Trip Header */}
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <Bus className="h-5 w-5 text-blue-600" />
                                                             <div>
-                                                                <p className="text-muted-foreground">Vehicle</p>
-                                                                <p className="font-medium">{trip.vehicle?.license_plate || 'N/A'}</p>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-muted-foreground">Driver</p>
-                                                                <p className="font-medium">{trip.driver?.user?.name || 'N/A'}</p>
+                                                                <p className="font-semibold">Trip #{trip.id.slice(0, 8)}</p>
+                                                                <p className="text-sm text-muted-foreground capitalize">{trip.type} Trip</p>
                                                             </div>
                                                         </div>
+                                                        <Badge className={getStatusColor(trip.status)}>
+                                                            {trip.status}
+                                                        </Badge>
+                                                    </div>
 
-                                                        {/* Boarding Stats */}
-                                                        <div className="pt-2 border-t">
-                                                            <div className="flex items-center justify-between mb-2">
-                                                                <span className="text-sm font-medium">Boarding Progress</span>
-                                                                <span className="text-sm font-semibold text-blue-600">
-                                                                    {stats.boarded}/{stats.total}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex gap-4 text-xs">
-                                                                <div className="flex items-center gap-1 text-green-600">
-                                                                    <CheckCircle2 className="h-3 w-3" />
-                                                                    <span>{stats.boarded} Boarded</span>
+                                                    {/* Route Info */}
+                                                    <div className="flex items-center gap-2 text-sm">
+                                                        <MapPin className="h-4 w-4 text-gray-500" />
+                                                        <span className="font-medium">{trip.route?.name || 'Unknown Route'}</span>
+                                                    </div>
+
+                                                    {/* Vehicle & Driver */}
+                                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                                        <div>
+                                                            <p className="text-muted-foreground">Vehicle</p>
+                                                            <p className="font-medium">{trip.vehicle?.license_plate || 'N/A'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-muted-foreground">Driver</p>
+                                                            <p className="font-medium">{trip.driver?.user?.name || 'N/A'}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Boarding Details */}
+                                                    <div className="pt-2 border-t space-y-3">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-sm font-medium">Boarding Status</span>
+                                                            <span className="text-sm font-semibold text-blue-600">
+                                                                {stats.boarded.length}/{stats.total}
+                                                            </span>
+                                                        </div>
+                                                        
+                                                        {/* Categorized Employee Lists */}
+                                                        <div className="space-y-2">
+                                                            {/* Boarded */}
+                                                            {stats.boarded.length > 0 && (
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-1 text-xs font-semibold text-green-600">
+                                                                        <CheckCircle2 className="h-3 w-3" />
+                                                                        <span>Picked ({stats.boarded.length})</span>
+                                                                    </div>
+                                                                    <div className="pl-4 text-xs text-muted-foreground flex flex-wrap gap-x-2">
+                                                                        {stats.boarded.map((log: any) => (
+                                                                            <span key={log.id}>{log.employee?.name}</span>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
-                                                                {stats.missed > 0 && (
-                                                                    <div className="flex items-center gap-1 text-red-600">
+                                                            )}
+
+                                                            {/* Missed */}
+                                                            {stats.missed.length > 0 && (
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-1 text-xs font-semibold text-red-600">
                                                                         <XCircle className="h-3 w-3" />
-                                                                        <span>{stats.missed} Missed</span>
+                                                                        <span>Missed ({stats.missed.length})</span>
                                                                     </div>
-                                                                )}
-                                                                {stats.pending > 0 && (
-                                                                    <div className="flex items-center gap-1 text-yellow-600">
+                                                                    <div className="pl-4 text-xs text-muted-foreground flex flex-wrap gap-x-2">
+                                                                        {stats.missed.map((log: any) => (
+                                                                            <span key={log.id}>{log.employee?.name}</span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Pending */}
+                                                            {stats.pending.length > 0 && (
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-1 text-xs font-semibold text-yellow-600">
                                                                         <Clock className="h-3 w-3" />
-                                                                        <span>{stats.pending} Pending</span>
+                                                                        <span>Pending ({stats.pending.length})</span>
                                                                     </div>
-                                                                )}
-                                                            </div>
+                                                                    <div className="pl-4 text-xs text-muted-foreground flex flex-wrap gap-x-2">
+                                                                        {stats.pending.map((log: any) => (
+                                                                            <span key={log.id}>{log.employee?.name}</span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    </CardContent>
-                                                </Card>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </ScrollArea>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -213,7 +244,7 @@ export default function TrackingPage() {
                             <CardTitle>Fleet Map</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0 h-[calc(100%-4rem)]">
-                            <LiveMap />
+                            <LiveMap selectedTrip={selectedTrip} trips={trips} />
                         </CardContent>
                     </Card>
                 </div>

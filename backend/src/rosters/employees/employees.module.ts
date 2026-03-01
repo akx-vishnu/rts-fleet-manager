@@ -4,9 +4,9 @@ import { EmployeesService } from './employees.service';
 import { EmployeesController } from './employees.controller';
 
 @Module({
-    imports: [],
-    controllers: [EmployeesController],
-    providers: [EmployeesService],
-    exports: [EmployeesService],
+  imports: [],
+  controllers: [EmployeesController],
+  providers: [EmployeesService],
+  exports: [EmployeesService],
 })
-export class EmployeesModule { }
+export class EmployeesModule {}

@@ -6,12 +6,9 @@ import { UsersModule } from '../users/users.module';
 import { RoutesModule } from '../routes/routes.module';
 
 @Module({
-    imports: [
-        UsersModule,
-        RoutesModule,
-    ],
-    controllers: [RostersController],
-    providers: [RostersService],
-    exports: [RostersService],
+  imports: [UsersModule, RoutesModule],
+  controllers: [RostersController],
+  providers: [RostersService],
+  exports: [RostersService],
 })
-export class RostersModule { }
+export class RostersModule {}

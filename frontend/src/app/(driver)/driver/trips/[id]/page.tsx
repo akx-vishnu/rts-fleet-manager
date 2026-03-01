@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Navigation, MapPin, Users, CheckCircle } from 'lucide-react';
+import { Navigation, MapPin, Users, CheckCircle, FileText } from 'lucide-react';
 import api from '@/lib/api';
 import EmployeeList from '@/components/driver/employee-list';
 import { useToast } from '@/hooks/use-toast';
@@ -146,7 +146,12 @@ export default function ActiveTripPage({ params }: { params: Promise<{ id: strin
         if (!trip) return;
         const currentStop = trip.route.stops[currentStopIndex]?.stop;
         if (currentStop) {
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentStop.lat},${currentStop.lng}`, '_blank');
+            let url = `https://www.google.com/maps/dir/?api=1&destination=${currentStop.lat},${currentStop.lng}`;
+            // If we have the driver's current GPS location, use it as the origin
+            if (gpsLocation && gpsLocation.length === 2) {
+                url += `&origin=${gpsLocation[0]},${gpsLocation[1]}`;
+            }
+            window.open(url, '_blank');
         }
     };
 
@@ -205,6 +210,17 @@ export default function ActiveTripPage({ params }: { params: Promise<{ id: strin
                         </Button>
                     </div>
 
+                    {/* Trip Notes */}
+                    {trip.notes && (
+                        <div className="mb-4 bg-yellow-50 p-3 rounded-lg border border-yellow-100 flex items-start gap-3">
+                            <FileText className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+                            <div>
+                                <h4 className="text-xs font-semibold text-yellow-800 uppercase mb-1">Admin Notes</h4>
+                                <p className="text-sm text-yellow-900">{trip.notes}</p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Action Buttons */}
                     <div className="space-y-3">
                         {trip.status === 'scheduled' ? (
@@ -254,23 +270,23 @@ export default function ActiveTripPage({ params }: { params: Promise<{ id: strin
                                 )}
                             </div>
                         )}
+                    </div>
 
-                        {/* Navigation controls for stops (Prev/Next) just for dev/manual override */}
-                        <div className="flex justify-center gap-4 text-sm text-gray-400 pt-2">
-                            <button
-                                disabled={currentStopIndex === 0}
-                                onClick={() => setCurrentStopIndex(prev => Math.max(0, prev - 1))}
-                            >
-                                Previous
-                            </button>
-                            <span>•</span>
-                            <button
-                                disabled={currentStopIndex === stops.length - 1}
-                                onClick={() => setCurrentStopIndex(prev => Math.min(stops.length - 1, prev + 1))}
-                            >
-                                Next
-                            </button>
-                        </div>
+                    {/* Navigation controls for stops (Prev/Next) just for dev/manual override */}
+                    <div className="flex justify-center gap-4 text-sm text-gray-400 pt-2">
+                        <button
+                            disabled={currentStopIndex === 0}
+                            onClick={() => setCurrentStopIndex(prev => Math.max(0, prev - 1))}
+                        >
+                            Previous
+                        </button>
+                        <span>•</span>
+                        <button
+                            disabled={currentStopIndex === stops.length - 1}
+                            onClick={() => setCurrentStopIndex(prev => Math.min(stops.length - 1, prev + 1))}
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

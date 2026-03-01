@@ -3,14 +3,28 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import api from "@/lib/api"
-import { Loader2, Activity, Bus, Map, Users } from "lucide-react"
+import { Loader2, Activity, Bus, Map, Users, Car, Clock, CheckCircle } from "lucide-react"
+
+interface RecentActivity {
+    id: string;
+    action: string;
+    details: string;
+    user: string;
+    createdAt: string;
+}
 
 interface DashboardStats {
-    totalUsers: number;
     totalVehicles: number;
     activeVehicles: number;
     totalTrips: number;
+    completedTrips: number;
+    ongoingTrips: number;
+    scheduledToday: number;
     onTimeRate: number;
+    totalDrivers: number;
+    activeDrivers: number;
+    totalEmployees: number;
+    recentActivity: RecentActivity[];
 }
 
 export default function AdminDashboard() {
@@ -40,13 +54,55 @@ export default function AdminDashboard() {
         )
     }
 
-    // Enhanced stats with icons
     const statsCards = [
-        { title: 'Total Trips', value: stats?.totalTrips || 0, icon: Map, desc: '+20.1% from last month' },
-        { title: 'Active Vehicles', value: `${stats?.activeVehicles || 0} / ${stats?.totalVehicles || 0}`, icon: Bus, desc: 'Vehicles currently on road' },
-        { title: 'On-Time Rate', value: `${stats?.onTimeRate || 0}%`, icon: Activity, desc: 'Target: 95%' },
-        { title: 'Total Users', value: stats?.totalUsers || 0, icon: Users, desc: 'Drivers & Admins' },
+        { title: 'Total Trips', value: stats?.totalTrips || 0, icon: Map, desc: `${stats?.completedTrips || 0} completed` },
+        { title: 'Vehicles', value: `${stats?.activeVehicles || 0} / ${stats?.totalVehicles || 0}`, icon: Bus, desc: 'Active / Total' },
+        { title: 'Drivers', value: `${stats?.activeDrivers || 0} / ${stats?.totalDrivers || 0}`, icon: Users, desc: 'Active / Total' },
+        { title: 'Ongoing Trips', value: stats?.ongoingTrips || 0, icon: Car, desc: `${stats?.scheduledToday || 0} scheduled today` },
     ];
+
+    const formatTimeAgo = (dateString: string) => {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffMs = now.getTime() - date.getTime();
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHr = Math.floor(diffMin / 60);
+        const diffDays = Math.floor(diffHr / 24);
+
+        if (diffMin < 1) return 'Just now';
+        if (diffMin < 60) return `${diffMin}m ago`;
+        if (diffHr < 24) return `${diffHr}h ago`;
+        return `${diffDays}d ago`;
+    };
+
+    const formatAction = (action: string) => {
+        // Convert "POST /fleet/vehicles" -> "Created Vehicle"
+        // Convert "PATCH /fleet/drivers/xxx" -> "Updated Driver"
+        // Convert "DELETE /routes/xxx" -> "Deleted Route"
+        // Convert "LOGIN" -> "User Login"
+        if (action === 'LOGIN') return 'User Login';
+        if (action.includes('[FAILED]')) return action.replace('[FAILED]', '⚠ Failed');
+
+        const method = action.split(' ')[0];
+        const path = action.split(' ')[1] || '';
+
+        let verb = method;
+        if (method === 'POST') verb = 'Created';
+        if (method === 'PATCH' || method === 'PUT') verb = 'Updated';
+        if (method === 'DELETE') verb = 'Deleted';
+
+        // Extract resource name from path
+        const segments = path.split('/').filter(Boolean);
+        let resource = segments[segments.length - 1] || 'Resource';
+        // If the last segment looks like a UUID, use the one before
+        if (resource.length > 20 || resource.match(/^[0-9a-f-]{36}$/)) {
+            resource = segments[segments.length - 2] || 'Resource';
+        }
+        // Capitalize
+        resource = resource.charAt(0).toUpperCase() + resource.slice(1);
+
+        return `${verb} ${resource}`;
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -80,62 +136,93 @@ export default function AdminDashboard() {
                 ))}
             </div>
 
-            {/* Recent Activity and Alerts */}
+            {/* Recent Activity and Quick Stats */}
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="glass">
                     <CardHeader>
                         <CardTitle>Recent Activity</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-8">
-                            <div className="flex items-center">
-                                <div className="ml-4 space-y-1">
-                                    <p className="text-sm font-medium leading-none">
-                                        Trip #TR-8832 Started
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Driver John Doe • Route R-101
-                                    </p>
-                                </div>
-                                <div className="ml-auto font-medium">+2m ago</div>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="ml-4 space-y-1">
-                                    <p className="text-sm font-medium leading-none">
-                                        Vehicle V-09 Arrived at Office
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Route R-102 Completed
-                                    </p>
-                                </div>
-                                <div className="ml-auto font-medium">+15m ago</div>
-                            </div>
+                        <div className="space-y-6">
+                            {stats?.recentActivity && stats.recentActivity.length > 0 ? (
+                                stats.recentActivity.map((activity) => (
+                                    <div key={activity.id} className="flex items-center">
+                                        <div className="ml-4 space-y-1 flex-1 min-w-0">
+                                            <p className="text-sm font-medium leading-none">
+                                                {formatAction(activity.action)}
+                                            </p>
+                                            <p className="text-sm text-muted-foreground truncate">
+                                                {activity.user}
+                                            </p>
+                                        </div>
+                                        <div className="ml-auto text-sm text-muted-foreground whitespace-nowrap">
+                                            {formatTimeAgo(activity.createdAt)}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground text-center py-4">
+                                    No recent activity
+                                </p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Alerts Section */}
+                {/* Quick Stats */}
                 <Card className="glass">
                     <CardHeader>
-                        <CardTitle>Recent Alerts</CardTitle>
+                        <CardTitle>Quick Stats</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            <div className="flex items-center">
-                                <span className="relative flex h-2 w-2 mr-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                                </span>
-                                <div className="ml-4 space-y-1">
-                                    <p className="text-sm font-medium leading-none">Vehicle #104 maintenance due</p>
-                                    <p className="text-sm text-muted-foreground">2 hours ago</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium">On-Time Rate</p>
+                                        <p className="text-xs text-muted-foreground">Completed trips</p>
+                                    </div>
                                 </div>
+                                <span className="text-lg font-bold text-green-600">{stats?.onTimeRate || 0}%</span>
                             </div>
-                            <div className="flex items-center">
-                                <div className="ml-4 space-y-1">
-                                    <p className="text-sm font-medium leading-none">Driver License Expiring</p>
-                                    <p className="text-sm text-muted-foreground">Driver John Doe</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                                        <Car className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium">Completed Trips</p>
+                                        <p className="text-xs text-muted-foreground">All time</p>
+                                    </div>
                                 </div>
+                                <span className="text-lg font-bold">{stats?.completedTrips || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
+                                        <Clock className="h-4 w-4 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium">Scheduled Today</p>
+                                        <p className="text-xs text-muted-foreground">Upcoming trips</p>
+                                    </div>
+                                </div>
+                                <span className="text-lg font-bold">{stats?.scheduledToday || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
+                                        <Users className="h-4 w-4 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium">Employees</p>
+                                        <p className="text-xs text-muted-foreground">Registered employees</p>
+                                    </div>
+                                </div>
+                                <span className="text-lg font-bold">{stats?.totalEmployees || 0}</span>
                             </div>
                         </div>
                     </CardContent>
@@ -144,3 +231,4 @@ export default function AdminDashboard() {
         </div>
     )
 }
+

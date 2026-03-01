@@ -7,13 +7,9 @@ import { EventsModule } from '../events/events.module';
 import { TripGeneratorService } from './trip-generator.service';
 
 @Module({
-    imports: [
-        RoutesModule,
-        FleetModule,
-        EventsModule,
-    ],
-    controllers: [TripsController],
-    providers: [TripsService, TripGeneratorService],
-    exports: [TripsService],
+  imports: [RoutesModule, FleetModule, EventsModule],
+  controllers: [TripsController],
+  providers: [TripsService, TripGeneratorService],
+  exports: [TripsService],
 })
-export class TripsModule { }
+export class TripsModule {}

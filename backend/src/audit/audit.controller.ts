@@ -8,11 +8,11 @@ import { Role } from '../common/enums/role.enum';
 @Controller('audit')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AuditController {
-    constructor(private readonly auditService: AuditService) { }
+  constructor(private readonly auditService: AuditService) {}
 
-    @Get()
-    @Roles(Role.SUPER_ADMIN, Role.ADMIN)
-    findAll() {
-        return this.auditService.findAll();
-    }
+  @Get()
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  findAll() {
+    return this.auditService.findAll();
+  }
 }

@@ -71,20 +71,19 @@ export default function RoutesPage() {
                                 <TableHead>Destination</TableHead>
                                 <TableHead>Est. Duration</TableHead>
                                 <TableHead>Stops</TableHead>
-                                <TableHead>Status</TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center">
+                                    <TableCell colSpan={7} className="text-center">
                                         Loading...
                                     </TableCell>
                                 </TableRow>
                             ) : routes.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center">
+                                    <TableCell colSpan={7} className="text-center">
                                         No routes found.
                                     </TableCell>
                                 </TableRow>
@@ -98,16 +97,6 @@ export default function RoutesPage() {
                                             <TableCell>{route.destination}</TableCell>
                                             <TableCell>{route.estimated_duration_mins} mins</TableCell>
                                             <TableCell>{route.stops?.length || 0}</TableCell>
-                                            <TableCell>
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${route.is_active
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-red-100 text-red-800'
-                                                        }`}
-                                                >
-                                                    {route.is_active ? 'Active' : 'Inactive'}
-                                                </span>
-                                            </TableCell>
                                             <TableCell>
                                                 <Button
                                                     variant="ghost"
@@ -125,7 +114,7 @@ export default function RoutesPage() {
                                         </TableRow>
                                         {expandedRouteId === route.id && (
                                             <TableRow className="bg-muted/20">
-                                                <TableCell colSpan={8}>
+                                                <TableCell colSpan={7}>
                                                     <div className="p-4 rounded-md border text-sm">
                                                         <h4 className="font-semibold mb-2 text-gray-700">Route Stops</h4>
                                                         {route.stops && route.stops.length > 0 ? (

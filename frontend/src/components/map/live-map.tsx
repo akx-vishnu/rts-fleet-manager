@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { io } from 'socket.io-client';
 import L from 'leaflet';
@@ -15,16 +15,15 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons for different marker types
-const vehicleIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+// Car icon for active vehicle (Uber-like)
+const carIcon = new L.Icon({
+    iconUrl: '/car-icon.svg',
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -20],
 });
 
+// Stop markers
 const pickupIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -43,15 +42,6 @@ const dropIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
-const completedIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
-
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000';
 
 interface VehicleLocation {
@@ -63,26 +53,95 @@ interface VehicleLocation {
     tripId?: string;
 }
 
-interface BoardingEvent {
-    tripId: string;
-    boardingLog: any;
-    location: { lat: number; lng: number };
-}
-
-interface Stop {
+interface SelectedTrip {
     id: string;
-    name: string;
-    lat: number;
-    lng: number;
-    type: 'pickup' | 'drop';
-    employeeCount: number;
-    boarded: number;
+    route: any;
+    driver: any;
+    vehicle: any;
+    status: string;
+    type: string;
 }
 
-export default function LiveMap() {
+// Subcomponent for vehicle marker to handle auto-opening its popup
+function VehicleMarker({ v, isSelected }: { v: VehicleLocation, isSelected: boolean }) {
+    const markerRef = useRef<any>(null);
+
+    useEffect(() => {
+        if (isSelected && markerRef.current) {
+            // Small delay to ensure the map flyTo animation starts/finishes
+            setTimeout(() => {
+                markerRef.current?.openPopup();
+            }, 500);
+        }
+    }, [isSelected, v.lat, v.lng]);
+
+    return (
+        <Marker
+            ref={markerRef}
+            position={[v.lat, v.lng] as L.LatLngExpression}
+            icon={carIcon}
+            zIndexOffset={isSelected ? 1000 : 0}
+        >
+            <Popup>
+                <div className="p-2">
+                    <h3 className="font-bold text-blue-600">
+                        {v.licensePlate || `Vehicle ${v.vehicleId.slice(0, 8)}`}
+                    </h3>
+                    {v.driverName && <p className="text-sm">Driver: {v.driverName}</p>}
+                    {v.tripId && <p className="text-sm text-green-600">On Trip</p>}
+                    <p className="text-xs text-gray-500 mt-1">
+                        📍 {v.lat.toFixed(4)}, {v.lng.toFixed(4)}
+                    </p>
+                </div>
+            </Popup>
+        </Marker>
+    );
+}
+
+// Component to fly-to the selected vehicle
+function FlyToVehicle({ lat, lng }: { lat: number; lng: number }) {
+    const map = useMap();
+    useEffect(() => {
+        if (lat && lng) {
+            map.flyTo([lat, lng], 15, { duration: 1.5 });
+        }
+    }, [lat, lng, map]);
+    return null;
+}
+
+interface LiveMapProps {
+    selectedTrip?: SelectedTrip | null;
+    trips?: SelectedTrip[];
+}
+
+export default function LiveMap({ selectedTrip, trips = [] }: LiveMapProps) {
     const [vehicles, setVehicles] = useState<Record<string, VehicleLocation>>({});
-    const [stops, setStops] = useState<Stop[]>([]);
-    const [boardingEvents, setBoardingEvents] = useState<BoardingEvent[]>([]);
+
+    // Initialize vehicles from trips when available
+    useEffect(() => {
+        if (trips.length > 0) {
+            setVehicles(prev => {
+                const updated = { ...prev };
+                trips.forEach(t => {
+                    const v = t.vehicle;
+                    if (v && v.id && v.current_lat && v.current_lng) {
+                        // Only add if not already added by WS
+                        if (!updated[v.id]) {
+                            updated[v.id] = {
+                                vehicleId: v.id,
+                                lat: v.current_lat,
+                                lng: v.current_lng,
+                                driverName: t.driver?.user?.name,
+                                licensePlate: v.license_plate,
+                                tripId: t.id
+                            };
+                        }
+                    }
+                });
+                return updated;
+            });
+        }
+    }, [trips]);
 
     useEffect(() => {
         const socket = io(SOCKET_URL);
@@ -92,28 +151,10 @@ export default function LiveMap() {
             socket.emit('joinRoom', 'admins');
         });
 
-        // Listen for vehicle location updates
         socket.on('vehicleLocation', (data: VehicleLocation) => {
             setVehicles(prev => ({
                 ...prev,
                 [data.vehicleId]: data
-            }));
-        });
-
-        // Listen for employee boarding events
-        socket.on('employeeBoarding', (data: BoardingEvent) => {
-            console.log('Employee boarding event:', data);
-            setBoardingEvents(prev => [...prev, data]);
-
-            // Update stop status
-            setStops(prev => prev.map(stop => {
-                if (stop.id === data.boardingLog.stop_id) {
-                    return {
-                        ...stop,
-                        boarded: stop.boarded + 1
-                    };
-                }
-                return stop;
             }));
         });
 
@@ -124,10 +165,23 @@ export default function LiveMap() {
 
     const vehicleList = Object.values(vehicles);
 
-    // Default center to Coimbatore, India
-    const center: [number, number] = vehicleList.length > 0
-        ? [vehicleList[0].lat, vehicleList[0].lng]
-        : [11.0168, 76.9558]; // Coimbatore coordinates
+    // Get route stops for the selected trip
+    const selectedStops = selectedTrip?.route?.stops || [];
+    const stopCoords: [number, number][] = selectedStops
+        .filter((rs: any) => rs.stop?.lat && rs.stop?.lng)
+        .map((rs: any) => [rs.stop.lat, rs.stop.lng] as [number, number]);
+
+    // Find the selected vehicle
+    const selectedVehicle = selectedTrip?.vehicle?.id
+        ? vehicles[selectedTrip.vehicle.id]
+        : null;
+
+    // Default center: selected vehicle, or first vehicle, or Coimbatore
+    const center: [number, number] = selectedVehicle
+        ? [selectedVehicle.lat, selectedVehicle.lng]
+        : vehicleList.length > 0
+            ? [vehicleList[0].lat, vehicleList[0].lng]
+            : [11.0168, 76.9558];
 
     return (
         <MapContainer center={center as L.LatLngExpression} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -136,65 +190,56 @@ export default function LiveMap() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
 
-            {/* Vehicle Markers */}
-            {vehicleList.map((v) => (
-                <Marker key={v.vehicleId} position={[v.lat, v.lng] as L.LatLngExpression} icon={vehicleIcon}>
-                    <Popup>
-                        <div className="p-2">
-                            <h3 className="font-bold text-blue-600">Vehicle: {v.vehicleId}</h3>
-                            {v.driverName && <p className="text-sm">Driver: {v.driverName}</p>}
-                            {v.licensePlate && <p className="text-sm">Plate: {v.licensePlate}</p>}
-                            {v.tripId && <p className="text-sm text-green-600">Trip ID: {v.tripId}</p>}
-                            <p className="text-xs text-gray-500 mt-1">
-                                📍 {v.lat.toFixed(4)}, {v.lng.toFixed(4)}
-                            </p>
-                        </div>
-                    </Popup>
-                </Marker>
-            ))}
+            {/* Fly to selected vehicle */}
+            {selectedVehicle && (
+                <FlyToVehicle lat={selectedVehicle.lat} lng={selectedVehicle.lng} />
+            )}
 
-            {/* Stop Markers */}
-            {stops.map((stop) => {
-                const icon = stop.type === 'pickup' ? pickupIcon :
-                    stop.boarded === stop.employeeCount ? completedIcon : dropIcon;
+            {/* All vehicle markers */}
+            {vehicleList.map((v) => {
+                const isSelected = selectedTrip?.vehicle?.id === v.vehicleId;
+                return (
+                    <VehicleMarker key={v.vehicleId} v={v} isSelected={isSelected} />
+                );
+            })}
+
+            {/* Route stops for selected trip */}
+            {selectedTrip && selectedStops.map((rs: any, index: number) => {
+                if (!rs.stop?.lat || !rs.stop?.lng) return null;
+                const isFirst = index === 0;
+                const isLast = index === selectedStops.length - 1;
+                const icon = isFirst ? pickupIcon : isLast ? dropIcon : pickupIcon;
 
                 return (
-                    <Marker key={stop.id} position={[stop.lat, stop.lng] as L.LatLngExpression} icon={icon}>
+                    <Marker
+                        key={rs.id || index}
+                        position={[rs.stop.lat, rs.stop.lng] as L.LatLngExpression}
+                        icon={icon}
+                    >
                         <Popup>
                             <div className="p-2">
-                                <h3 className={`font-bold ${stop.type === 'pickup' ? 'text-green-600' : 'text-red-600'}`}>
-                                    {stop.type === 'pickup' ? '🟢' : '🔴'} {stop.name}
+                                <h3 className="font-bold">
+                                    {isFirst ? '🟢 Start: ' : isLast ? '🔴 End: ' : '📍 '}
+                                    {rs.stop.name}
                                 </h3>
-                                <p className="text-sm">Type: {stop.type.toUpperCase()}</p>
-                                <p className="text-sm">Employees: {stop.boarded} / {stop.employeeCount}</p>
-                                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="bg-green-600 h-2 rounded-full"
-                                        style={{ width: `${(stop.boarded / stop.employeeCount) * 100}%` }}
-                                    ></div>
-                                </div>
+                                <p className="text-xs text-gray-500">Stop {index + 1}</p>
                             </div>
                         </Popup>
                     </Marker>
                 );
             })}
 
-            {/* Recent boarding event markers */}
-            {boardingEvents.slice(-10).map((event, idx) => (
-                <Marker
-                    key={`boarding-${idx}`}
-                    position={[event.location.lat, event.location.lng] as L.LatLngExpression}
-                >
-                    <Popup>
-                        <div className="p-2">
-                            <p className="font-bold">✅ Boarding Event</p>
-                            <p className="text-xs text-gray-500">
-                                Trip: {event.tripId}
-                            </p>
-                        </div>
-                    </Popup>
-                </Marker>
-            ))}
+            {/* Route path line for selected trip */}
+            {selectedTrip && stopCoords.length > 1 && (
+                <Polyline
+                    positions={stopCoords}
+                    color="#2563eb"
+                    weight={3}
+                    opacity={0.7}
+                    dashArray="10, 6"
+                />
+            )}
         </MapContainer>
     );
 }
+

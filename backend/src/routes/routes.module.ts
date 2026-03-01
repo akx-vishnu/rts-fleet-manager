@@ -4,9 +4,9 @@ import { RoutesService } from './routes.service';
 import { RoutesController } from './routes.controller';
 
 @Module({
-    imports: [],
-    controllers: [RoutesController],
-    providers: [RoutesService],
-    exports: [RoutesService],
+  imports: [],
+  controllers: [RoutesController],
+  providers: [RoutesService],
+  exports: [RoutesService],
 })
-export class RoutesModule { }
+export class RoutesModule {}

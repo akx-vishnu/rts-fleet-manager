@@ -27,6 +27,26 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [showPassword, setShowPassword] = useState<boolean>(false)
 
+    React.useEffect(() => {
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+
+        if (token && userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role === 'driver') {
+                    router.replace("/driver");
+                } else {
+                    router.replace("/admin");
+                }
+            } catch (e) {
+                // Invalid user data, clear it
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+            }
+        }
+    }, [router]);
+
     async function onSubmit(event: React.SyntheticEvent) {
         event.preventDefault()
         setIsLoading(true)

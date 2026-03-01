@@ -12,7 +12,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Phone } from 'lucide-react';
 import { AddDriverModal } from '@/components/admin/drivers/add-driver-modal';
 import { EditDriverModal } from '@/components/admin/drivers/edit-driver-modal';
 
@@ -108,13 +108,28 @@ export default function DriversPage() {
                                             </span>
                                         </TableCell>
                                         <TableCell>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => setEditingDriver(driver)}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
+                                            <div className="flex items-center gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    onClick={() => {
+                                                        const phone = driver.user?.phone;
+                                                        if (phone && confirm(`Call ${driver.user?.name || 'driver'} at ${phone}?`)) {
+                                                            window.location.href = `tel:${phone}`;
+                                                        }
+                                                    }}
+                                                >
+                                                    <Phone className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setEditingDriver(driver)}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

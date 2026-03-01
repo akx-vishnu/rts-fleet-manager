@@ -13,20 +13,20 @@ export const DRIZZLE = 'DRIZZLE';
 
 @Global()
 @Module({
-    providers: [
-        {
-            provide: DRIZZLE,
-            inject: [ConfigService],
-            useFactory: async (configService: ConfigService) => {
-                const connectionString = configService.get<string>('DATABASE_URL');
-                const pool = new Pool({
-                    connectionString,
-                    ssl: { rejectUnauthorized: false },
-                });
-                return drizzle(pool, { schema });
-            },
-        },
-    ],
-    exports: [DRIZZLE],
+  providers: [
+    {
+      provide: DRIZZLE,
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const connectionString = configService.get<string>('DATABASE_URL');
+        const pool = new Pool({
+          connectionString,
+          ssl: { rejectUnauthorized: false },
+        });
+        return drizzle(pool, { schema });
+      },
+    },
+  ],
+  exports: [DRIZZLE],
 })
-export class DrizzleModule { }
+export class DrizzleModule {}

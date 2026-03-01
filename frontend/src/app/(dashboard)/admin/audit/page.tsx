@@ -66,10 +66,10 @@ export default function AuditPage() {
                                 logs.map((log) => (
                                     <TableRow key={log.id}>
                                         <TableCell className="font-medium">{log.action}</TableCell>
-                                        <TableCell>{log.user?.email || log.userId}</TableCell>
+                                        <TableCell>{log.user?.email || log.user?.name || log.user_id}</TableCell>
                                         <TableCell className="max-w-xs truncate" title={log.details}>{log.details}</TableCell>
-                                        <TableCell>{log.ipAddress}</TableCell>
-                                        <TableCell>{new Date(log.createdAt).toLocaleString()}</TableCell>
+                                        <TableCell>{log.ip_address}</TableCell>
+                                        <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
                                     </TableRow>
                                 ))
                             )}

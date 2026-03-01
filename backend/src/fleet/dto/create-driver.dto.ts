@@ -3,14 +3,14 @@ import { Transform } from 'class-transformer';
 import { DriverStatus } from '../../drizzle/schema/fleet';
 
 export class CreateDriverDto {
-    @IsUUID()
-    userId: string; // Link to existing User
+  @IsUUID()
+  userId: string; // Link to existing User
 
-    @IsString()
-    @Transform(({ value }) => value?.toUpperCase())
-    license_number: string;
+  @IsString()
+  @Transform(({ value }) => value?.toUpperCase())
+  license_number: string;
 
-    @IsEnum(DriverStatus)
-    @IsOptional()
-    status?: DriverStatus;
+  @IsEnum(DriverStatus)
+  @IsOptional()
+  status?: DriverStatus;
 }

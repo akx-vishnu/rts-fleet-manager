@@ -133,20 +133,19 @@ export default function VehiclesPage() {
                                 <TableHead onClick={() => handleSort('status')} className="cursor-pointer hover:bg-gray-50">
                                     Status {renderSortIcon('status')}
                                 </TableHead>
-                                <TableHead>Location</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center">
+                                    <TableCell colSpan={7} className="text-center">
                                         Loading...
                                     </TableCell>
                                 </TableRow>
                             ) : sortedVehicles.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center">
+                                    <TableCell colSpan={7} className="text-center">
                                         No vehicles found.
                                     </TableCell>
                                 </TableRow>
@@ -166,11 +165,6 @@ export default function VehiclesPage() {
                                             >
                                                 {vehicle.status}
                                             </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            {vehicle.current_lat
-                                                ? `${vehicle.current_lat.toFixed(4)}, ${vehicle.current_lng.toFixed(4)}`
-                                                : 'N/A'}
                                         </TableCell>
                                         <TableCell>
                                             <Button

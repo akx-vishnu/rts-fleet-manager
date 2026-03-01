@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import api from '@/lib/api';
 import { AddEmployeeModal } from '@/components/admin/employees/add-employee-modal';
 import { EditEmployeeModal } from '@/components/admin/employees/edit-employee-modal';
-import { Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, Trash2, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface User {
@@ -30,8 +30,6 @@ interface Employee {
     user: User;
     department: string;
     designation: string;
-    shift_start?: string;
-    shift_end?: string;
 }
 
 export default function EmployeesPage() {
@@ -82,10 +80,7 @@ export default function EmployeesPage() {
                 aValue = a.user?.phone || '';
                 bValue = b.user?.phone || '';
                 break;
-            case 'department':
-                aValue = a.department || '';
-                bValue = b.department || '';
-                break;
+
             case 'designation':
                 aValue = a.designation || '';
                 bValue = b.designation || '';
@@ -136,13 +131,10 @@ export default function EmployeesPage() {
                                     <TableHead onClick={() => handleSort('phone')} className="cursor-pointer hover:bg-gray-50">
                                         Phone {renderSortIcon('phone')}
                                     </TableHead>
-                                    <TableHead onClick={() => handleSort('department')} className="cursor-pointer hover:bg-gray-50">
-                                        Department {renderSortIcon('department')}
-                                    </TableHead>
+
                                     <TableHead onClick={() => handleSort('designation')} className="cursor-pointer hover:bg-gray-50">
                                         Designation {renderSortIcon('designation')}
                                     </TableHead>
-                                    <TableHead>Shift</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -156,27 +148,39 @@ export default function EmployeesPage() {
                                             {employee.user?.name || 'N/A'}
                                         </TableCell>
                                         <TableCell>{employee.user?.phone}</TableCell>
-                                        <TableCell>{employee.department}</TableCell>
+
                                         <TableCell>
                                             <Badge variant="outline">{employee.designation}</Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {employee.shift_start} - {employee.shift_end}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => setEditingEmployee(employee)}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
+                                            <div className="flex items-center gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    onClick={() => {
+                                                        const phone = employee.user?.phone;
+                                                        if (phone && confirm(`Call ${employee.user?.name || 'employee'} at ${phone}?`)) {
+                                                            window.location.href = `tel:${phone}`;
+                                                        }
+                                                    }}
+                                                >
+                                                    <Phone className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setEditingEmployee(employee)}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
                                 {sortedEmployees.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center">
+                                        <TableCell colSpan={5} className="text-center">
                                             No employees found.
                                         </TableCell>
                                     </TableRow>

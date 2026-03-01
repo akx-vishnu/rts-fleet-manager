@@ -25,6 +25,9 @@ const actionTypes = {
     REMOVE_TOAST: "REMOVE_TOAST",
 } as const
 
+// Used for types
+export { actionTypes }
+
 let count = 0
 
 function genId() {

@@ -34,26 +34,10 @@ async function bootstrap() {
 
     for (const emp of testEmployees) {
         try {
-            // Check if user exists by phone, create if not
-            let user = await db.query.users.findFirst({
-                where: eq(users.phone, emp.phone)
-            });
-
-            if (!user) {
-                user = await usersService.create({
-                    phone: emp.phone,
-                    name: emp.name,
-                    password: 'password123',
-                    role: Role.EMPLOYEE,
-                });
-                console.log(`✅ Created user for: ${emp.name}`);
-            } else {
-                console.log(`ℹ️ User already exists for: ${emp.phone}`);
-            }
-
-            // Create employee record
+            // Create employee record directly
             await employeesService.create({
-                userId: user.id,
+                name: emp.name,
+                phone: emp.phone,
                 employee_id: emp.id,
                 department: emp.dept,
                 designation: emp.post,

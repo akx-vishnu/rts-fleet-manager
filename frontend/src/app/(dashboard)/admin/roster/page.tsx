@@ -475,7 +475,7 @@ export default function RosterAssignmentsPage() {
                                         <SelectValue placeholder="Select driver" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {drivers.map((driver) => (
+                                        {drivers.filter(d => d.status === 'active').map((driver) => (
                                             <SelectItem key={driver.id} value={driver.id}>
                                                 {driver.user.name}
                                             </SelectItem>
@@ -495,7 +495,7 @@ export default function RosterAssignmentsPage() {
                                     <SelectValue placeholder="Select vehicle" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {vehicles.map((vehicle) => (
+                                    {vehicles.filter(v => v.status === 'active').map((vehicle) => (
                                         <SelectItem key={vehicle.id} value={vehicle.id}>
                                             {vehicle.model} - {vehicle.license_plate}
                                         </SelectItem>

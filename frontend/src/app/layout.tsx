@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RTS Fleet Manager",
   description: "Fleet Management System",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
